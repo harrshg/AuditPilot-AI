@@ -2,14 +2,17 @@
   "name": "auditpilot-ai",
   "version": "0.1.0",
   "private": true,
-  "description": "AI-assisted defensive web application audit foundation.",
+  "description": "AI-assisted defensive web application audit platform.",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "zod": "^3.23.8"
+    "build": "tsc -b tsconfig.json",
+    "check": "tsc -b tsconfig.json --pretty false",
+    "build:types": "tsc -b tsconfig.json",
+    "clean": "node -e \"console.log('clean script pending')\""
   },
   "devDependencies": {
     "typescript": "^5.5.4"
