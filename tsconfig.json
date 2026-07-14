@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "declaration": true
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts"]
+  "files": [],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/playwright-engine" },
+    { "path": "packages/analyzers" },
+    { "path": "packages/ai-engine" },
+    { "path": "packages/test-generator" },
+    { "path": "apps/api" },
+    { "path": "apps/worker" }
+  ]
 }

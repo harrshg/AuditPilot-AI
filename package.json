@@ -2,16 +2,26 @@
   "name": "auditpilot-ai",
   "version": "0.1.0",
   "private": true,
-  "description": "AI-assisted defensive web application audit foundation.",
+  "description": "AI-assisted defensive web application audit platform.",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit"
+    "build": "tsc -b tsconfig.json",
+    "check": "tsc -b tsconfig.json --pretty false",
+    "build:types": "tsc -b tsconfig.json",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate:dev": "prisma migrate dev",
+    "clean": "node -e \"console.log('clean script pending')\""
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "@prisma/client": "^5.18.0"
   },
   "devDependencies": {
+    "prisma": "^5.18.0",
     "typescript": "^5.5.4"
   }
 }

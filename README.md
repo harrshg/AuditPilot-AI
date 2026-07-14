@@ -27,7 +27,7 @@ The system should then:
 
 ## Current Status
 
-This repository currently contains **Task 1: Scope and Permissions** and **Task 4: Scan Job Model**.
+This repository currently contains the first four foundation layers: **Task 1: Scope and Permissions**, **Task 2: Monorepo Structure**, **Task 3: Database Schema**, and **Task 4: Scan Job Model**.
 
 Implemented capabilities:
 
@@ -41,6 +41,9 @@ Implemented capabilities:
 - URL scope checking
 - Element interaction policy checks
 - Form submission policy checks
+- Prisma database schema
+- PostgreSQL datasource configuration
+- Core audit entities for projects, scans, issues, recommendations, artifacts, and generated tests
 - Scan job schema
 - Scan job status lifecycle validation
 - Scan job progress tracking
@@ -163,40 +166,43 @@ PostgreSQL + Object Storage
 Report Dashboard + Exported Tests
 ```
 
-## Suggested Future Monorepo Structure
+## Current Project Structure
 
 ```text
 auditpilot-ai/
   apps/
     web/
     api/
+      src/
+        index.ts
     worker/
+      src/
+        index.ts
   packages/
     shared/
+      src/
+        authorization.ts
+        destructive-actions.ts
+        scan-config.schema.ts
+        scan-job.schema.ts
+        scan-policy.ts
+        scope-validator.ts
+        index.ts
     playwright-engine/
+      src/
+        index.ts
     analyzers/
+      src/
+        index.ts
     ai-engine/
+      src/
+        index.ts
     test-generator/
+      src/
+        index.ts
   prisma/
-  docker-compose.yml
-  README.md
-```
-
-## Current Project Structure
-
-```text
-auditpilot-ai/
-  src/
-    scope/
-      authorization.ts
-      destructive-actions.ts
-      scan-config.schema.ts
-      scan-policy.ts
-      scope-validator.ts
-    jobs/
-      scan-job.schema.ts
-    index.ts
   package.json
+  tsconfig.base.json
   tsconfig.json
   README.md
 ```
@@ -219,6 +225,24 @@ Build the project:
 
 ```bash
 npm run build
+```
+
+Validate the Prisma schema:
+
+```bash
+npm run db:validate
+```
+
+Generate the Prisma client:
+
+```bash
+npm run db:generate
+```
+
+Create a development migration:
+
+```bash
+npm run db:migrate:dev
 ```
 
 ## Task 1: Scope and Permissions
@@ -431,8 +455,8 @@ The project should avoid destructive behavior by default and should require expl
 ### Phase 1: Foundation
 
 - [x] Scope and permission model
-- [ ] Monorepo structure
-- [ ] Database schema
+- [x] Monorepo structure
+- [x] Database schema
 - [x] Scan job model
 - [ ] Basic API server
 
