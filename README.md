@@ -27,7 +27,7 @@ The system should then:
 
 ## Current Status
 
-This repository currently contains the first two foundation layers: **Task 1: Scope and Permissions** and **Task 2: Monorepo Structure**.
+This repository currently contains the first three foundation layers: **Task 1: Scope and Permissions**, **Task 2: Monorepo Structure**, and **Task 3: Database Schema**.
 
 Implemented capabilities:
 
@@ -41,6 +41,9 @@ Implemented capabilities:
 - URL scope checking
 - Element interaction policy checks
 - Form submission policy checks
+- Prisma database schema
+- PostgreSQL datasource configuration
+- Core audit entities for projects, scans, issues, recommendations, artifacts, and generated tests
 
 ## Planned Features
 
@@ -219,6 +222,24 @@ Build the project:
 npm run build
 ```
 
+Validate the Prisma schema:
+
+```bash
+npm run db:validate
+```
+
+Generate the Prisma client:
+
+```bash
+npm run db:generate
+```
+
+Create a development migration:
+
+```bash
+npm run db:migrate:dev
+```
+
 ## Task 1: Scope and Permissions
 
 The first implemented layer is responsible for making sure scans are safe, authorized, and restricted to an approved scope.
@@ -385,7 +406,7 @@ The project should avoid destructive behavior by default and should require expl
 
 - [x] Scope and permission model
 - [x] Monorepo structure
-- [ ] Database schema
+- [x] Database schema
 - [ ] Scan job model
 - [ ] Basic API server
 
