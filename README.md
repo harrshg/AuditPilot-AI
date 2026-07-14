@@ -27,7 +27,7 @@ The system should then:
 
 ## Current Status
 
-This repository currently contains the first foundation layer: **Task 1: Scope and Permissions**.
+This repository currently contains **Task 1: Scope and Permissions** and **Task 4: Scan Job Model**.
 
 Implemented capabilities:
 
@@ -41,6 +41,10 @@ Implemented capabilities:
 - URL scope checking
 - Element interaction policy checks
 - Form submission policy checks
+- Scan job schema
+- Scan job status lifecycle validation
+- Scan job progress tracking
+- Scan job retry metadata
 
 ## Planned Features
 
@@ -189,6 +193,8 @@ auditpilot-ai/
       scan-config.schema.ts
       scan-policy.ts
       scope-validator.ts
+    jobs/
+      scan-job.schema.ts
     index.ts
   package.json
   tsconfig.json
@@ -284,6 +290,51 @@ AuditPilot AI includes a basic action-label classifier that blocks potentially r
 - Archive
 
 These checks help prevent the scanner from accidentally mutating production data.
+
+## Task 4: Scan Job Model
+
+The scan job model defines how an authorized scan request is queued, tracked, retried, and moved through the worker lifecycle.
+
+### Scan Job Schema
+
+The scan job model supports:
+
+- `id`
+- `status`
+- `priority`
+- `trigger`
+- `payload`
+- `progress`
+- `attempts`
+- `maxAttempts`
+- `lockOwnerId`
+- `lockedUntil`
+- `error`
+- `timestamps`
+
+### Scan Job Lifecycle
+
+Supported job statuses:
+
+- `queued`
+- `running`
+- `completed`
+- `failed`
+- `cancelled`
+
+Valid transitions are intentionally restrictive so completed and cancelled jobs cannot be restarted accidentally.
+
+### Scan Job Progress
+
+The progress model tracks:
+
+- Current execution step
+- Pages discovered
+- Pages visited
+- Network requests captured
+- Console messages captured
+- Issues found
+- Percent complete
 
 ## Example Scan Configuration
 
@@ -382,7 +433,7 @@ The project should avoid destructive behavior by default and should require expl
 - [x] Scope and permission model
 - [ ] Monorepo structure
 - [ ] Database schema
-- [ ] Scan job model
+- [x] Scan job model
 - [ ] Basic API server
 
 ### Phase 2: Playwright Engine
