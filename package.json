@@ -12,6 +12,8 @@
     "build": "tsc -b tsconfig.json",
     "check": "tsc -b tsconfig.json --pretty false",
     "build:types": "tsc -b tsconfig.json",
+    "api:start": "npm run start --workspace @auditpilot/api",
+    "api:check": "npm run check --workspace @auditpilot/api",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "db:migrate:dev": "prisma migrate dev",
@@ -21,6 +23,7 @@
     "@prisma/client": "^5.18.0"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "prisma": "^5.18.0",
     "typescript": "^5.5.4"
   }

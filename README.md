@@ -27,7 +27,7 @@ The system should then:
 
 ## Current Status
 
-This repository currently contains the first four foundation layers: **Task 1: Scope and Permissions**, **Task 2: Monorepo Structure**, **Task 3: Database Schema**, and **Task 4: Scan Job Model**.
+This repository currently contains the first five foundation layers: **Task 1: Scope and Permissions**, **Task 2: Monorepo Structure**, **Task 3: Database Schema**, **Task 4: Scan Job Model**, and **Task 5: Basic API Server**.
 
 Implemented capabilities:
 
@@ -48,6 +48,9 @@ Implemented capabilities:
 - Scan job status lifecycle validation
 - Scan job progress tracking
 - Scan job retry metadata
+- Basic API health endpoint
+- Basic scan submission endpoint
+- In-memory scan job lookup endpoint
 
 ## Planned Features
 
@@ -245,6 +248,18 @@ Create a development migration:
 npm run db:migrate:dev
 ```
 
+Run the API server after building:
+
+```bash
+npm run api:start
+```
+
+Run API-only type checking:
+
+```bash
+npm run api:check
+```
+
 ## Task 1: Scope and Permissions
 
 The first implemented layer is responsible for making sure scans are safe, authorized, and restricted to an approved scope.
@@ -360,6 +375,27 @@ The progress model tracks:
 - Issues found
 - Percent complete
 
+## Task 5: Basic API Server
+
+The basic API server provides the first HTTP entrypoint for health checks and scan job submission.
+
+### API Endpoints
+
+The API currently supports:
+
+- `GET /health`
+- `GET /v1`
+- `POST /v1/scans`
+- `GET /v1/jobs/:id`
+
+### Scan Submission
+
+`POST /v1/scans` accepts the same scan configuration payload validated by the shared scope and permission model. Valid submissions create an in-memory queued scan job.
+
+### Job Lookup
+
+`GET /v1/jobs/:id` returns the queued scan job while the API process is running.
+
 ## Example Scan Configuration
 
 ```ts
@@ -458,7 +494,7 @@ The project should avoid destructive behavior by default and should require expl
 - [x] Monorepo structure
 - [x] Database schema
 - [x] Scan job model
-- [ ] Basic API server
+- [x] Basic API server
 
 ### Phase 2: Playwright Engine
 
