@@ -5,6 +5,13 @@
     "rootDir": "src",
     "composite": true
   },
-  "references": [{ "path": "../../packages/shared" }],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/db" },
+    { "path": "../../packages/analyzers" },
+    { "path": "../../packages/ai-engine" },
+    { "path": "../../packages/test-generator" },
+    { "path": "../../packages/playwright-engine" }
+  ],
   "include": ["src/**/*.ts"]
 }

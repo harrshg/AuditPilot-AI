@@ -11,6 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "@auditpilot/shared": ["packages/shared/src/index.ts"],
+      "@auditpilot/db": ["packages/db/src/index.ts"],
       "@auditpilot/playwright-engine": ["packages/playwright-engine/src/index.ts"],
       "@auditpilot/analyzers": ["packages/analyzers/src/index.ts"],
       "@auditpilot/ai-engine": ["packages/ai-engine/src/index.ts"],

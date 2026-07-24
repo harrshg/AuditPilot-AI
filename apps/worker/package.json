@@ -7,9 +7,15 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit"
+    "check": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js"
   },
   "dependencies": {
-    "@auditpilot/shared": "file:../../packages/shared"
+    "@auditpilot/shared": "file:../../packages/shared",
+    "@auditpilot/db": "file:../../packages/db",
+    "@auditpilot/analyzers": "file:../../packages/analyzers",
+    "@auditpilot/ai-engine": "file:../../packages/ai-engine",
+    "@auditpilot/test-generator": "file:../../packages/test-generator",
+    "@auditpilot/playwright-engine": "file:../../packages/playwright-engine"
   }
 }

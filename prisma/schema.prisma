@@ -122,6 +122,10 @@ model ScanConfig {
   authorizationAcceptedAt  DateTime
   authorizationNotes       String?
   credentialsSecretRef     String?
+  scheduleCron             String?
+  scheduleEnabled          Boolean  @default(false)
+  nextRunAt                DateTime?
+  lastScheduledRunAt       DateTime?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 
@@ -129,6 +133,7 @@ model ScanConfig {
   scans   Scan[]
 
   @@index([projectId])
+  @@index([scheduleEnabled, nextRunAt])
   @@map("scan_configs")
 }
 

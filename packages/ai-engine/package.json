@@ -10,6 +10,7 @@
     "check": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@auditpilot/shared": "file:../shared"
+    "@auditpilot/shared": "file:../shared",
+    "@auditpilot/analyzers": "file:../analyzers"
   }
 }

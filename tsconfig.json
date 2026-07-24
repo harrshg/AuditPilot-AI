@@ -6,6 +6,7 @@
   "files": [],
   "references": [
     { "path": "packages/shared" },
+    { "path": "packages/db" },
     { "path": "packages/playwright-engine" },
     { "path": "packages/analyzers" },
     { "path": "packages/ai-engine" },

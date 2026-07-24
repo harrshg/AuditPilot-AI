@@ -1,7 +1,17 @@
-import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 
-import { createScanJob, ScanJob, validateScanScope } from '@auditpilot/shared';
+import {
+  compareScans,
+  createScan,
+  createScanConfig,
+  defaultSecretsProvider,
+  getOrCreateDefaultProject,
+  getScanById,
+  listScans,
+  mapScanModeToPrisma,
+} from '@auditpilot/db';
+import { canPerformAction, createScanJob, isValidTeamRole, ScanJob, TeamRole, validateScanScope } from '@auditpilot/shared';
 
 const DEFAULT_PORT = 3001;
 const jobs = new Map<string, ScanJob>();
@@ -61,6 +71,9 @@ async function routeRequest(request: IncomingMessage, response: ServerResponse) 
         'GET /health',
         'GET /v1',
         'POST /v1/scans',
+        'GET /v1/scans',
+        'GET /v1/scans/:id',
+        'GET /v1/scans/:idA/compare/:idB',
         'GET /v1/jobs/:id',
       ],
     });
@@ -68,6 +81,15 @@ async function routeRequest(request: IncomingMessage, response: ServerResponse) 
   }
 
   if (method === 'POST' && url.pathname === '/v1/scans') {
+    const role = resolveTeamRole(request);
+    if (!canPerformAction(role, 'create_scan')) {
+      sendJson(response, 403, {
+        error: 'forbidden',
+        message: `Role '${role}' is not permitted to create scans.`,
+      });
+      return;
+    }
+
     const body = await readJsonBody(request);
     const validation = validateScanScope(body);
 
@@ -79,13 +101,55 @@ async function routeRequest(request: IncomingMessage, response: ServerResponse) 
       return;
     }
 
+    const { projectId, userId } = await getOrCreateDefaultProject();
+    const config = validation.normalizedConfig;
+
+    let credentialsSecretRef: string | undefined;
+    if (config.credentials) {
+      credentialsSecretRef = randomUUID();
+      await defaultSecretsProvider.store(credentialsSecretRef, config.credentials);
+    }
+
+    const scanConfigRow = await createScanConfig({
+      projectId,
+      name: `Scan of ${safeHostname(config.websiteUrl)}`,
+      websiteUrl: config.websiteUrl,
+      loginUrl: config.credentials?.loginUrl,
+      issueDescription: config.issueDescription,
+      scanMode: mapScanModeToPrisma(config.scanMode),
+      maxCrawlDepth: config.maxCrawlDepth,
+      maxPages: config.maxPages,
+      allowedDomains: config.allowedDomains,
+      excludedPaths: config.excludedPaths,
+      safeMode: config.safety.safeMode,
+      allowDestructiveActions: config.safety.allowDestructiveActions,
+      allowFormSubmission: config.safety.allowFormSubmission,
+      allowFileUploadTesting: config.safety.allowFileUploadTesting,
+      allowPaymentFlowTesting: config.safety.allowPaymentFlowTesting,
+      authorizationTesterName: config.authorization.testerName,
+      authorizationOrgName: config.authorization.organizationName,
+      authorizationAcceptedAt: new Date(config.authorization.acceptedTermsAt),
+      authorizationNotes: config.authorization.notes,
+      credentialsSecretRef,
+    });
+
+    const scan = await createScan({
+      projectId,
+      scanConfigId: scanConfigRow.id,
+      requestedByUserId: userId,
+      mode: mapScanModeToPrisma(config.scanMode),
+      targetUrl: config.websiteUrl,
+    });
+
     const job = createScanJob({
-      id: randomUUID(),
+      id: scan.id,
       priority: 'normal',
       trigger: 'api',
       maxAttempts: 3,
       payload: {
-        scanConfig: validation.normalizedConfig,
+        scanConfig: config,
+        projectId,
+        requestedByUserId: userId,
       },
     });
 
@@ -93,7 +157,45 @@ async function routeRequest(request: IncomingMessage, response: ServerResponse) 
 
     sendJson(response, 202, {
       job,
+      scanId: scan.id,
     });
+    return;
+  }
+
+  if (method === 'GET' && url.pathname === '/v1/scans') {
+    const projectId = url.searchParams.get('projectId') ?? undefined;
+    const scans = await listScans(projectId);
+    sendJson(response, 200, { scans });
+    return;
+  }
+
+  if (method === 'GET' && /^\/v1\/scans\/[^/]+\/compare\/[^/]+$/.test(url.pathname)) {
+    const [, , , scanIdA, , scanIdB] = url.pathname.split('/');
+    try {
+      const comparison = await compareScans(scanIdA, scanIdB);
+      sendJson(response, 200, { comparison });
+    } catch (error) {
+      sendJson(response, 404, {
+        error: 'comparison_failed',
+        message: error instanceof Error ? error.message : 'Unable to compare scans',
+      });
+    }
+    return;
+  }
+
+  if (method === 'GET' && url.pathname.startsWith('/v1/scans/')) {
+    const scanId = url.pathname.replace('/v1/scans/', '').trim();
+    const scan = await getScanById(scanId);
+
+    if (!scan) {
+      sendJson(response, 404, {
+        error: 'scan_not_found',
+        message: `No scan found for id '${scanId}'`,
+      });
+      return;
+    }
+
+    sendJson(response, 200, { scan });
     return;
   }
 
@@ -139,6 +241,20 @@ async function readJsonBody(request: IncomingMessage) {
   } catch {
     throw new Error('Request body must be valid JSON');
   }
+}
+
+function safeHostname(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
+function resolveTeamRole(request: IncomingMessage): TeamRole {
+  const header = request.headers['x-user-role'];
+  const value = Array.isArray(header) ? header[0] : header;
+  return value && isValidTeamRole(value) ? value : 'MEMBER';
 }
 
 function sendJson(response: ServerResponse, statusCode: number, body: unknown) {
